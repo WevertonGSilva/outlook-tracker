@@ -5,11 +5,10 @@ Transformar a planilha enviada em um painel executivo minimalista, usando o visu
 
 ## O que será construído
 - Cabeçalho com período analisado e contexto da recuperação judicial.
-- Indicadores de previsto, realizado, aderência ao forecast e frota.
-- Comparativo por cliente com valores e desvios do mês selecionado.
-- Visão de evolução mensal do forecast, Plano RJ e dados realizados disponíveis.
-- Distribuição entre frota própria e subcontratada.
-- Área de premissas com os três períodos e taxas da planilha.
+- Faixa resumida de previsto, realizado, aderência ao forecast e frota, sem cards.
+- Grade principal no formato de planilha, com clientes nas linhas e meses/anos nas colunas.
+- Comparação de Previsto, Realizado e Plano RJ preservando a leitura horizontal do arquivo.
+- Linhas de frota própria, subcontratada e premissas integradas abaixo da grade.
 - Seleção de mês e cliente para atualizar os números exibidos.
 - Adaptação completa para telas grandes e celulares.
 
@@ -21,7 +20,8 @@ Transformar a planilha enviada em um painel executivo minimalista, usando o visu
 ## Direção visual
 - Base clara, tipografia geométrica e números monoespaçados.
 - Tons violeta, rosa, verde e âmbar do conceito Y2K Chrome escolhido.
-- Superfícies brancas, bordas leves, brilho cromado pontual e alta densidade de informação.
+- Uma única superfície contínua, bordas de células leves, brilho cromado pontual e alta densidade de informação.
+- Não usar cards; manter o formato visual de planilha como estrutura dominante.
 - Movimento discreto somente em transições de filtros e gráficos.
 
 ## Validação
