@@ -35,10 +35,15 @@ function ForecastSheet() {
     client.name.toLocaleLowerCase("pt-BR").includes(query.toLocaleLowerCase("pt-BR")),
   );
   const activeIndex = yearIndexes[selectedMonth]?.index ?? yearIndexes[0]?.index ?? 0;
-  const activeForecast = forecastData.forecast[activeIndex];
-  const activeActual = forecastData.actual[activeIndex];
-  const activePlan = forecastData.plan[activeIndex];
+  const activeMonth = forecastData.months[activeIndex] ?? forecastData.months[0];
+  const activeForecast = forecastData.forecast[activeIndex] ?? 0;
+  const activeActual = forecastData.actual[activeIndex] ?? null;
+  const activePlan = forecastData.plan[activeIndex] ?? 0;
+  const activeFleet = forecastData.fleet[activeIndex] ?? 0;
+  const activeOwnedShare = forecastData.ownedShare[activeIndex] ?? 0;
   const adherence = activeActual === null ? activeForecast / activePlan : activeActual / activeForecast;
+
+  if (!activeMonth) return null;
 
   const changeYear = (nextYear: number) => {
     setYear(nextYear);
@@ -70,10 +75,10 @@ function ForecastSheet() {
 
       <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6">
         <section className="summary-grid grid border border-border bg-surface sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumo do mês">
-          <Summary label={`Forecast · ${forecastData.months[activeIndex].label}`} value={compactMoney.format(activeForecast)} note={`${percent.format(activeForecast / activePlan)} do Plano RJ`} />
+          <Summary label={`Forecast · ${activeMonth.label}`} value={compactMoney.format(activeForecast)} note={`${percent.format(activePlan === 0 ? 0 : activeForecast / activePlan)} do Plano RJ`} />
           <Summary label="Realizado" value={activeActual === null ? "—" : compactMoney.format(activeActual)} note={activeActual === null ? "Aguardando fechamento" : `${percent.format(activeActual / activeForecast)} do previsto`} tone={activeActual === null ? "muted" : activeActual >= activeForecast ? "positive" : "warning"} />
           <Summary label="Plano RJ" value={compactMoney.format(activePlan)} note={activeForecast >= activePlan ? "Forecast acima do plano" : "Forecast abaixo do plano"} tone={activeForecast >= activePlan ? "positive" : "warning"} />
-          <Summary label="Frota projetada" value={String(forecastData.fleet[activeIndex])} note={`${percent.format(forecastData.ownedShare[activeIndex])} próprio`} />
+          <Summary label="Frota projetada" value={String(activeFleet)} note={`${percent.format(activeOwnedShare)} próprio`} />
         </section>
 
         <section className="mt-5 border border-border bg-surface" aria-labelledby="sheet-title">
@@ -112,14 +117,14 @@ function ForecastSheet() {
                   <tr key={client.name}>
                     <th className="sticky left-0 z-10 border-b border-r border-border bg-surface px-4 py-2.5 text-left font-display text-xs font-semibold">{client.name}</th>
                     {yearIndexes.flatMap(({ month, index }, monthIndex) => [
-                      <td key={`${month.key}-f`} className={`border-b border-r border-border px-3 py-2.5 text-right ${selectedMonth === monthIndex ? "active-column" : ""}`}>{money.format(client.forecast[index])}</td>,
-                      <td key={`${month.key}-r`} className={`border-b border-r border-border px-3 py-2.5 text-right ${selectedMonth === monthIndex ? "active-column" : ""}`}>{forecastData.actual[index] === null ? "—" : client.name === "NOVOS CLIENTES" ? "—" : money.format(index === 0 ? [361786.82,3953797,91545.6,185668.59,244648.21,550246.89,987004.09,33919.77,5331107.74,0][forecastData.clients.findIndex((item) => item.name === client.name)] : 0)}</td>,
+                      <td key={`${month.key}-f`} className={`border-b border-r border-border px-3 py-2.5 text-right ${selectedMonth === monthIndex ? "active-column" : ""}`}>{money.format(client.forecast[index] ?? 0)}</td>,
+                      <td key={`${month.key}-r`} className={`border-b border-r border-border px-3 py-2.5 text-right ${selectedMonth === monthIndex ? "active-column" : ""}`}>{forecastData.actual[index] === null || forecastData.actual[index] === undefined ? "—" : client.name === "NOVOS CLIENTES" ? "—" : money.format(index === 0 ? ([361786.82,3953797,91545.6,185668.59,244648.21,550246.89,987004.09,33919.77,5331107.74,0][forecastData.clients.findIndex((item) => item.name === client.name)] ?? 0) : 0)}</td>,
                     ])}
                   </tr>
                 ))}
-                <TotalRow label="FORECAST" values={yearIndexes.map(({ index }) => forecastData.forecast[index])} selectedMonth={selectedMonth} />
-                <TotalRow label="PLANO RJ" values={yearIndexes.map(({ index }) => forecastData.plan[index])} selectedMonth={selectedMonth} plan />
-                <TotalRow label="REALIZADO" values={yearIndexes.map(({ index }) => forecastData.actual[index])} selectedMonth={selectedMonth} actual />
+                <TotalRow label="FORECAST" values={yearIndexes.map(({ index }) => forecastData.forecast[index] ?? null)} selectedMonth={selectedMonth} />
+                <TotalRow label="PLANO RJ" values={yearIndexes.map(({ index }) => forecastData.plan[index] ?? null)} selectedMonth={selectedMonth} plan />
+                <TotalRow label="REALIZADO" values={yearIndexes.map(({ index }) => forecastData.actual[index] ?? null)} selectedMonth={selectedMonth} actual />
               </tbody>
             </table>
           </div>
@@ -130,11 +135,11 @@ function ForecastSheet() {
             <div className="border-b border-border md:border-b-0 md:border-r">
               <div className="flex items-center gap-2 border-b border-border px-4 py-3"><Filter className="size-3.5 text-primary" /><h2 className="text-sm font-bold">Capacidade operacional</h2></div>
               <div className="grid grid-cols-[1fr_auto] text-sm">
-                <SheetLine label="Quantidade da frota" value={String(forecastData.fleet[activeIndex])} />
-                <SheetLine label="Próprio" value={percent.format(forecastData.ownedShare[activeIndex])} tone="primary" />
-                <SheetLine label="Subcontratado" value={percent.format(1 - forecastData.ownedShare[activeIndex])} tone="accent" />
+                <SheetLine label="Quantidade da frota" value={String(activeFleet)} />
+                <SheetLine label="Próprio" value={percent.format(activeOwnedShare)} tone="primary" />
+                <SheetLine label="Subcontratado" value={percent.format(1 - activeOwnedShare)} tone="accent" />
               </div>
-              <div className="fleet-track mx-4 mb-4 flex h-2 overflow-hidden bg-muted"><span className="chrome-fill" style={{ width: `${forecastData.ownedShare[activeIndex] * 100}%` }} /><span className="bg-accent" style={{ width: `${(1 - forecastData.ownedShare[activeIndex]) * 100}%` }} /></div>
+              <div className="fleet-track mx-4 mb-4 flex h-2 overflow-hidden bg-muted"><span className="chrome-fill" style={{ width: `${activeOwnedShare * 100}%` }} /><span className="bg-accent" style={{ width: `${(1 - activeOwnedShare) * 100}%` }} /></div>
             </div>
             <div>
               <div className="border-b border-border px-4 py-3"><h2 className="text-sm font-bold">Premissas</h2></div>
