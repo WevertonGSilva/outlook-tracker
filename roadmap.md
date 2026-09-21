@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Construir painel com dados reais da planilha
-- [ ] Preservar formato de planilha, sem cards
-- [ ] Implementar filtros de período e cliente
-- [ ] Validar cálculos, desktop e celular
+- [x] Construir painel com dados reais da planilha
+- [x] Preservar formato de planilha, sem cards
+- [x] Implementar filtros de período e cliente
+- [x] Validar cálculos, desktop e celular
